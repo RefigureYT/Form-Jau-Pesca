@@ -5,8 +5,13 @@ set -euo pipefail
 IP="${IP:-192.168.15.121}"           # Registry privado
 REG_PORT="${REG_PORT:-5000}"         # Porta do registry
 NAME="${NAME:-form-jau-pesca}"       # Nome da imagem
+
+# Tag de versão (usa commit curto quando houver git; senão 'latest')
 VERSION="${VERSION:-$(git rev-parse --short HEAD 2>/dev/null || echo latest)}"
-IMAGE_NAME="${IP}:${REG_PORT}/${NAME}:${VERSION}"
+
+FULL_REPO="${IP}:${REG_PORT}/${NAME}"
+IMAGE_VER="${FULL_REPO}:${VERSION}"
+IMAGE_LATEST="${FULL_REPO}:latest"
 
 # Porta do app: lê do .env (PORT=...) ou usa default do server.js (62143)
 APP_PORT="${APP_PORT:-$(
@@ -40,18 +45,21 @@ else
 fi
 
 # ========= Build =========
-echo "⏳ Iniciando build da imagem: ${IMAGE_NAME} ..."
-docker build -t "${IMAGE_NAME}" .
+echo "⏳ Iniciando build das imagens:"
+echo "    - ${IMAGE_VER}"
+echo "    - ${IMAGE_LATEST}"
+docker build -t "${IMAGE_VER}" -t "${IMAGE_LATEST}" .
 echo "✅ Build finalizado."
 
 # ========= Push =========
-echo "📦 Enviando imagem para o registry privado em ${IP}:${REG_PORT}..."
-docker push "${IMAGE_NAME}"
-echo "🚀 Enviado com sucesso!"
+echo "📦 Enviando imagens para o registry privado em ${IP}:${REG_PORT}..."
+docker push "${IMAGE_VER}"
+docker push "${IMAGE_LATEST}"
+echo "🚀 Envio concluído!"
 
 # ========= Dica de execução =========
 echo
-echo "🔗 Para rodar o container:"
-echo "    docker run -d --name ${NAME} --env-file .env -p ${APP_PORT}:${APP_PORT} ${IMAGE_NAME}"
+echo "🔗 Para rodar o container (usando latest):"
+echo "    docker run -d --name ${NAME} --env-file .env -p ${APP_PORT}:${APP_PORT} ${IMAGE_LATEST}"
 echo
-echo "   (Sem .env, use: docker run -d --name ${NAME} -e PORT=${APP_PORT} -p ${APP_PORT}:${APP_PORT} ${IMAGE_NAME})"
+echo "   (Sem .env, use: docker run -d --name ${NAME} -e PORT=${APP_PORT} -p ${APP_PORT}:${APP_PORT} ${IMAGE_LATEST})"

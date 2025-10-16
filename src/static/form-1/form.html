@@ -10,15 +10,17 @@
     <meta name="theme-color" content="#f4fbfd">
 
     <!-- Segurança básica (ajuste domínios se mudar o webhook, CDN, etc.) -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self';
-                 img-src 'self' data:;
-                 connect-src 'self' https://webhook.jaupesca.com.br;
-                 script-src 'self';
-                 style-src 'self';
-                 base-uri 'self';
-                 form-action 'self' https://webhook.jaupesca.com.br;
-                 frame-ancestors 'none';
-                 upgrade-insecure-requests">
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        img-src 'self' data: https:;
+        connect-src 'self' https://webhook.jaupesca.com.br;
+        script-src 'self';
+        style-src 'self';
+        base-uri 'self';
+        form-action 'self' https://webhook.jaupesca.com.br;
+        frame-ancestors 'none';
+        upgrade-insecure-requests">
+
 
     <!-- Política de permissões conservadora -->
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), fullscreen=(self)">
@@ -29,6 +31,20 @@
     <!-- CSS -->
     <link rel="preload" href="/static/form-1/form.css" as="style">
     <link rel="stylesheet" href="/static/form-1/form.css">
+
+    <!-- Favicon clássico -->
+    <link rel="icon" href="/favicon.ico" sizes="any">
+
+    <!-- (Opcional) PNGs específicos -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
+
+    <!-- (Opcional) SVG moderno -->
+    <link rel="icon" type="image/svg+xml" href="/img/favicon.svg">
+
+    <!-- (Opcional) iOS -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
+
 </head>
 
 <body>

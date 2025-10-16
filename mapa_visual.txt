@@ -1,7 +1,10 @@
 Form-Jau-Pesca/
+├─ .dockerignore
 ├─ .env
 ├─ .gitignore
+├─ Dockerfile
 ├─ README.md
+├─ build.sh
 ├─ dirignore.txt
 ├─ formulario-exemplo.html
 ├─ nodemon.json
@@ -10,6 +13,11 @@ Form-Jau-Pesca/
 ├─ server.js
 └─ src
    ├─ img
+   │  ├─ apple-touch-icon.png
+   │  ├─ favicon-16x16.png
+   │  ├─ favicon-32x32.png
+   │  ├─ favicon.ico
+   │  ├─ favicon.svg
    │  ├─ instagram.png
    │  ├─ jaupesca.png
    │  ├─ tiktok.png
@@ -17,7 +25,7 @@ Form-Jau-Pesca/
    ├─ routes
    │  └─ form.js
    └─ static
-      └─ form
+      └─ form-1
          ├─ form-ok.html
          ├─ form.css
          ├─ form.css.map

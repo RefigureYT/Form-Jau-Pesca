@@ -16,7 +16,11 @@ app.get('/health', (req, res) => {
 
 // ============== Rotas ==============
 app.use('/static', express.static(path.join(__dirname, 'src', 'static')));
-app.use('/img', express.static(path.join(__dirname, 'src', 'img')));
+app.use('/img', express.static(path.join(__dirname, 'src', 'img'), {
+    maxAge: '1y',
+    immutable: true
+}));
+app.use('/favicon.ico', express.static(path.join(__dirname, 'src', 'img', 'favicon.ico')));
 app.use('/form', formRouter);
 // ===================================
 
