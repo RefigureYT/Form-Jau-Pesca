@@ -7,15 +7,15 @@ const __dirname = path.dirname(__filename);
 
 const router = Router();
 
-router.get('/',(req, res) => {
+router.get('/formulario-cadastro-parceria-jau-pesca',(req, res) => {
     console.log('Requisição recebida');
-    const file = path.join(__dirname, '..', 'static', 'form', 'form.html');
+    const file = path.join(__dirname, '..', 'static', 'form-1', 'form.html');
     res.sendFile(file);
 });
 
 router.get('/formulario-enviado', (req, res) => {
     console.log('Requisição recebida');
-    const file = path.join(__dirname, '..', 'static', 'form', 'form-ok.html');
+    const file = path.join(__dirname, '..', 'static', 'form-1', 'form-ok.html');
     res.sendFile(file);
 });
 

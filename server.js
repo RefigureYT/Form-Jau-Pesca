@@ -23,21 +23,35 @@ app.use('/form', formRouter);
 
 // Redirecionamento para o formulário
 app.get('/', (req, res) => {
-    res.redirect('/form');
+    res.redirect('https://www.jaupesca.com.br/');
 });
 
-// 404 para rotas não encontradas
+// Redirecionamento para o formulário
+app.get('/1', (req, res) => {
+    res.redirect('/form/formulario-cadastro-parceria-jau-pesca');
+});
+
+// 404 fallback
 app.use((req, res) => {
+    // Primeiro a gente verifica se o site o cliente está tentando acessar via WEB ou via API
+    if (req.accepts('html')) { // && !req.path.startsWith('/api') <== Só caso seja adicionar um /api 
+        return res.redirect(302, 'https://www.jaupesca.com.br/');
+    }
     res.status(404).json({ error: 'Not Found' });
 });
 
-// Middleware central de erros (sempre com 4 args)
+// Middleware de erro (sempre 4 args)
 app.use((err, req, res, next) => {
-    console.error(err);
-    const status = err.statusCode || 500;
-    res.status(status).json({
-        error: err.message || 'Internal Server Error'
-    });
+    console.err(err);
+    if (res.headersSent) return next(err);
+
+    // Para páginas, manda para o site... API joga um JSON de erro
+    if (req.accepts('html') && !req.path.startsWith('/api')) {
+        // 303 evita re-post no destino se o erro veio de um POST
+        return res.redirect(303, 'https://www.jaupesca.com.br/');
+    }
+
+    res.status(err.statusCode || 500).json({ error: 'Internal Server Error' });
 });
 
 const PORT = process.env.PORT || 62143;

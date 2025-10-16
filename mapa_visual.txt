@@ -1,0 +1,26 @@
+Form-Jau-Pesca/
+├─ .env
+├─ .gitignore
+├─ README.md
+├─ dirignore.txt
+├─ formulario-exemplo.html
+├─ nodemon.json
+├─ package-lock.json
+├─ package.json
+├─ server.js
+└─ src
+   ├─ img
+   │  ├─ instagram.png
+   │  ├─ jaupesca.png
+   │  ├─ tiktok.png
+   │  └─ youtube.png
+   ├─ routes
+   │  └─ form.js
+   └─ static
+      └─ form
+         ├─ form-ok.html
+         ├─ form.css
+         ├─ form.css.map
+         ├─ form.html
+         ├─ form.js
+         └─ form.scss
