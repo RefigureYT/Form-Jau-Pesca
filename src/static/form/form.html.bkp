@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Cadastro — Parcerias Jaú Pesca</title>
+    <meta name="theme-color" content="#f4fbfd">
+    <!-- Tema via cookie (padrão: claro) -->
+    <script>
+        (function () {
+            function getCookie(name) { const r = document.cookie.split('; ').find(x => x.startsWith(name + '=')); return r ? decodeURIComponent(r.split('=')[1]) : null; }
+            function setCookie(n, v, d) { const t = new Date; t.setTime(t.getTime() + d * 864e5); document.cookie = n + '=' + encodeURIComponent(v) + '; expires=' + t.toUTCString() + '; path=/; SameSite=Lax'; }
+            var theme = getCookie('theme') || 'light';
+            if (!getCookie('theme')) setCookie('theme', theme, 365);
+            document.documentElement.dataset.theme = theme;
+        })();
+    </script>
+    <link rel="stylesheet" href="/static/form/form.css" />
+</head>
+
+<body>
+    <main class="wizard">
+        <header class="wizard__header header">
+            <div class="header__top">
+                <h1 class="header__title">🧾 Formulário de Cadastro — Parcerias Jaú Pesca</h1>
+
+                <!-- SWITCH DE TEMA (topo direito) -->
+                <div class="theme-switch">
+                    <input type="checkbox" id="themeToggle" aria-label="Alternar tema claro/escuro" />
+                    <label for="themeToggle">
+                        <span class="icon sun" aria-hidden="true">🌙</span>
+                        <span class="icon moon" aria-hidden="true">🌞</span>
+                        <span class="knob" aria-hidden="true"></span>
+                    </label>
+                </div>
+            </div>
+
+            <p class="header__lead">
+                Quer ser <strong>revendedor</strong> ou <strong>representante comissionado</strong>?
+                Preencha os dados da sua empresa/atividade. Assim entendemos seu perfil e
+                oferecemos as melhores condições para uma parceria sólida. 🚀
+            </p>
+
+            <!-- Hero responsivo com recorte central -->
+            <figure class="hero" role="img" aria-label="Produtos e equipamentos de pesca da Jaú Pesca">
+                <img src="/img/jaupesca.png" alt="Linha de produtos para pesca" loading="lazy" decoding="async" />
+            </figure>
+
+            <p class="sub">Responda passo a passo. O conteúdo se adapta às suas respostas.</p>
+
+            <div class="progress">
+                <div id="progressBar" class="progress__bar"></div>
+            </div>
+        </header>
+
+        <form id="wizardForm" novalidate>
+            <!-- STEP 1 — Tipo de parceria -->
+            <section class="step is-visible" data-step="1">
+                <h2>1/6 — Você deseja se cadastrar como?</h2>
+                <div class="field-group">
+                    <label class="choice"><input type="radio" name="tipo_parceria" value="Lojista"> Lojista (revenda com
+                        compras)</label>
+                    <label class="choice"><input type="radio" name="tipo_parceria" value="Representante"> Representante
+                        comissionado (afiliado)</label>
+                    <label class="choice"><input type="radio" name="tipo_parceria" value="Consumidor Final"> Consumidor
+                        final (uso próprio)</label>
+                </div>
+                <div class="actions">
+                    <button type="button" class="btn" id="next1" disabled>Próximo</button>
+                </div>
+            </section>
+            <!-- STEP 1b — Consumidor final (aparece só quando selecionado) -->
+            <section class="step" id="cfStep" data-step="cf">
+                <h2>Consumidor final — seus dados</h2>
+
+                <div class="field">
+                    <label class="label required">Nome completo</label>
+                    <input id="cf_nome" type="text" autocomplete="name" placeholder="Seu nome">
+                    <small id="cfNomeError" class="error" hidden>Informe seu nome.</small>
+                </div>
+
+                <div class="field">
+                    <label class="label required">E-mail</label>
+                    <input id="cf_email" type="email" autocomplete="email" placeholder="voce@exemplo.com">
+                    <small id="cfEmailError" class="error" hidden>E-mail inválido. Por favor, insira um e-mail
+                        válido.</small>
+                </div>
+
+                <div class="field">
+                    <label class="label required">Telefone (WhatsApp)</label>
+                    <input id="cf_telefone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(  ) _____-____">
+                    <small id="cfTelError" class="error" hidden>Número inválido. Use DDD + número (10 a 11
+                        dígitos).</small>
+                </div>
+
+                <div class="field">
+                    <label class="label">
+                        <input id="cf_optin" type="checkbox" checked>
+                        <span>Se você <strong>NÃO</strong> quiser receber cupons de desconto e promoções, desative esta
+                            opção.</span>
+                    </label>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn" id="cfEnviar" disabled>Enviar</button>
+                </div>
+            </section>
+
+            <!-- STEP 2 — Empresa e CNPJ -->
+            <section class="step" data-step="2">
+                <h2>2/6 — Dados da empresa</h2>
+
+                <div class="field">
+                    <label class="label">Nome da empresa (ou nome completo, se autônomo)</label>
+                    <input id="empresa" name="empresa" type="text" autocomplete="organization"
+                        placeholder="Ex.: Silvio de Alencar Turatti - ME">
+                </div>
+
+                <div class="field">
+                    <label class="label">Razão social (se aplicável)</label>
+                    <input id="razao" name="razao_social" type="text"
+                        placeholder="Ex.: Jaú Pesca Comércio de Artigos Esportivos LTDA">
+                </div>
+
+                <div class="field">
+                    <label class="label">Cidade e estado</label>
+                    <input id="cidade" name="cidade_uf" type="text" placeholder="Ex.: Jaú/SP">
+                </div>
+
+                <div class="info">Digite somente números. O formato será preenchido automaticamente.</div>
+                <div class="field">
+                    <label class="label required">CNPJ</label>
+                    <input id="cnpj" name="cnpj" type="text" inputmode="numeric" autocomplete="off"
+                        placeholder="__.___.___/____-__">
+                    <small id="cnpjError" class="error" hidden>CNPJ inválido. Verifique e tente novamente.</small>
+                </div>
+
+                <div class="actions">
+                    <button type="button" class="btn" id="next2" disabled>Próximo</button>
+                </div>
+            </section>
+
+            <!-- STEP 3 — Responsável comercial -->
+            <section class="step" data-step="3">
+                <h2>3/6 — Responsável comercial</h2>
+
+                <div class="field">
+                    <label class="label">Nome do responsável</label>
+                    <input id="resp_nome" name="responsavel_nome" type="text" placeholder="Ex.: Leandro Turatti"
+                        autocomplete="name">
+                </div>
+
+                <div class="field">
+                    <label class="label">Cargo/Função</label>
+                    <input id="resp_cargo" name="responsavel_cargo" type="text" placeholder="Ex.: Marketing/Vendas">
+                </div>
+
+                <div class="field">
+                    <label class="label">E-mail comercial</label>
+                    <input id="email" name="email_comercial" type="email" placeholder="exemplo@empresa.com.br"
+                        autocomplete="email">
+                    <small id="emailError" class="error" hidden>E-mail inválido. Por favor, insira um e-mail
+                        válido.</small>
+                </div>
+
+                <div class="field">
+                    <label class="label required">Telefone (WhatsApp)</label>
+                    <input id="telefone" name="telefone" type="tel" inputmode="tel" autocomplete="tel"
+                        placeholder="(  ) _____-____">
+                    <small id="telError" class="error" hidden>Número inválido. Use DDD + número (10 a 11 dígitos) e
+                        evite sequências repetidas.</small>
+                </div>
+
+                <div class="actions">
+                    <button type="button" class="btn" id="next3" disabled>Próximo</button>
+                </div>
+            </section>
+
+            <!-- STEP 4 — Tipo de negócio -->
+            <section class="step" data-step="4">
+                <h2>4/6 — Tipo de negócio</h2>
+
+                <div class="field-group">
+                    <span class="label required">Já trabalha com produtos/serviços de pesca/camping/náutica?</span>
+                    <label class="choice"><input type="radio" name="segmento_atual" value="Sim"> Sim</label>
+                    <label class="choice"><input type="radio" name="segmento_atual" value="Não"> Não</label>
+                </div>
+
+                <div id="marcasGroup" class="field" hidden>
+                    <label class="label">Com quais produtos ou marcas você já trabalha?</label>
+                    <input id="marcas" name="marcas" type="text"
+                        placeholder="Kala, Nautika, Bestway, Maruri, Popfishing...">
+                </div>
+
+                <div class="field-group">
+                    <span class="label">Sua empresa atua como (pode marcar mais de uma)</span>
+                    <label class="choice"><input type="checkbox" name="atuacao[]" value="Loja física"> Loja
+                        física</label>
+                    <label class="choice"><input type="checkbox" name="atuacao[]" value="Loja online / e-commerce"> Loja
+                        online / e-commerce</label>
+                    <label class="choice"><input type="checkbox" name="atuacao[]" value="Representante comercial">
+                        Representante comercial</label>
+                    <label class="choice"><input type="checkbox" name="atuacao[]" value="Distribuidora">
+                        Distribuidora</label>
+                    <label class="choice"><input type="checkbox" name="atuacao[]" value="Outro"> Outro</label>
+                </div>
+
+                <div class="field-group">
+                    <span class="label">Há quanto tempo sua empresa atua no mercado?</span>
+                    <label class="choice"><input type="radio" name="tempo_mercado" value="Menos de 1 ano"> Menos de 1
+                        ano</label>
+                    <label class="choice"><input type="radio" name="tempo_mercado" value="1 a 3 anos"> 1 a 3
+                        anos</label>
+                    <label class="choice"><input type="radio" name="tempo_mercado" value="3 a 5 anos"> 3 a 5
+                        anos</label>
+                    <label class="choice"><input type="radio" name="tempo_mercado" value="Mais de 5 anos"> Mais de 5
+                        anos</label>
+                </div>
+
+                <div class="field-group">
+                    <span class="label">Quantas pessoas fazem parte da equipe comercial?</span>
+                    <label class="choice"><input type="radio" name="equipe_comercial" value="1 a 3"> 1 a 3</label>
+                    <label class="choice"><input type="radio" name="equipe_comercial" value="4 a 10"> 4 a 10</label>
+                    <label class="choice"><input type="radio" name="equipe_comercial" value="11 a 30"> 11 a 30</label>
+                    <label class="choice"><input type="radio" name="equipe_comercial" value="Mais de 30"> Mais de
+                        30</label>
+                </div>
+
+                <div class="field-group">
+                    <span class="label">Onde sua empresa realiza vendas? (pode marcar mais de uma)</span>
+                    <label class="choice"><input type="checkbox" name="onde_vende[]" value="Loja física"> Loja
+                        física</label>
+                    <label class="choice"><input type="checkbox" name="onde_vende[]" value="Loja online própria"> Loja
+                        online própria</label>
+                    <label class="choice"><input type="checkbox" name="onde_vende[]" value="Marketplaces"> Marketplaces
+                        (Shopee, Mercado Livre, Amazon, etc.)</label>
+                    <label class="choice"><input type="checkbox" name="onde_vende[]" value="Redes sociais"> Redes
+                        sociais (Instagram, WhatsApp, etc.)</label>
+                    <label class="choice"><input type="checkbox" name="onde_vende[]"
+                            value="Vendas diretas / representantes"> Vendas diretas / representantes</label>
+                </div>
+
+                <div class="field">
+                    <label class="label">Público principal</label>
+                    <input id="publico" name="publico_principal" type="text"
+                        placeholder="Pescadores profissionais, público geral, lojistas...">
+                </div>
+
+                <div class="field-group">
+                    <span class="label">Média de pedidos mensais</span>
+                    <label class="choice"><input type="radio" name="media_pedidos" value="Até 50"> Até 50
+                        pedidos</label>
+                    <label class="choice"><input type="radio" name="media_pedidos" value="51 a 200"> 51 a 200
+                        pedidos</label>
+                    <label class="choice"><input type="radio" name="media_pedidos" value="201 a 500"> 201 a 500
+                        pedidos</label>
+                    <label class="choice"><input type="radio" name="media_pedidos" value="500 a 1000"> 500 a 1000
+                        pedidos</label>
+                    <label class="choice"><input type="radio" name="media_pedidos" value="Mais de 1000"> Mais de 1000
+                        pedidos</label>
+                </div>
+
+                <div class="actions">
+                    <button type="button" class="btn" id="next4" disabled>Próximo</button>
+                </div>
+            </section>
+
+            <!-- STEP 5 — Parceria com a Jaú Pesca -->
+            <section class="step" data-step="5">
+                <h2>5/6 — Parceria com a Jaú Pesca</h2>
+
+                <div class="field-group">
+                    <span class="label">Como conheceu a Jaú Pesca?</span>
+                    <label class="choice"><input type="radio" name="como_conheceu" value="Indicação"> Indicação</label>
+                    <label class="choice"><input type="radio" name="como_conheceu" value="Redes sociais"> Redes
+                        sociais</label>
+                    <label class="choice"><input type="radio" name="como_conheceu" value="Evento/Feira"> Evento /
+                        feira</label>
+                    <label class="choice"><input type="radio" name="como_conheceu" value="Google"> Pesquisa no
+                        Google</label>
+                    <label class="choice"><input type="radio" name="como_conheceu" value="Outro"> Outro</label>
+                </div>
+
+                <div class="field">
+                    <label class="label required">Linhas de produtos de interesse</label>
+                    <input id="linhas" name="linhas_interesse" type="text" placeholder="Varas, molinetes, iscas..." />
+                </div>
+
+                <div id="volumeGroup" class="field-group" hidden>
+                    <span class="label required">Volume de compra inicial estimado (somente para Lojista)</span>
+                    <label class="choice"><input type="radio" name="volume_inicial" value="Até R$2.000,00"> Até
+                        R$2.000,00</label>
+                    <label class="choice"><input type="radio" name="volume_inicial" value="R$2.000,00 a R$5.000,00">
+                        R$2.000,00 a R$5.000,00</label>
+                    <label class="choice"><input type="radio" name="volume_inicial" value="R$5.000,00 a R$10.000,00">
+                        R$5.000,00 a R$10.000,00</label>
+                    <label class="choice"><input type="radio" name="volume_inicial" value="Acima de R$10.000,00"> Acima
+                        de R$10.000,00</label>
+                </div>
+
+                <div class="actions">
+                    <button type="button" class="btn" id="next5" disabled>Próximo</button>
+                </div>
+            </section>
+
+            <!-- STEP 6 — Autorização e Observações -->
+            <section class="step" data-step="6">
+                <h2>6/6 — Autorização e observações</h2>
+
+                <div class="field subtle-optin">
+                    <label class="label">
+                        <input id="autorizo" name="autorizo_contato" type="checkbox" checked>
+                        <span>Sim, autorizo o contato por WhatsApp/e-mail. <em>(Desmarque se não quiser.)</em></span>
+                    </label>
+                </div>
+
+                <div class="field">
+                    <label class="label">Observações</label>
+                    <textarea id="obs" name="observacoes" rows="4" placeholder="(opcional)"></textarea>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn" id="enviar" disabled>Enviar</button>
+                    <p id="msg" class="msg" hidden>Enviado! Veja o console do navegador.</p>
+                </div>
+            </section>
+        </form>
+    </main>
+
+    <script src="/static/form/form.js" defer></script>
+</body>
+
+</html>

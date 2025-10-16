@@ -1,0 +1,561 @@
+/* ===================== Utils ===================== */
+const digits = (s) => (s || '').replace(/\D/g, '');
+const allSame = (s) => /^(\d)\1+$/.test(s);
+
+/* CNPJ mask + validation -------------------------------------------------- */
+function maskCNPJ(value) {
+    const d = digits(value).slice(0, 14);
+    let out = '';
+    if (d.length > 0) out = d.slice(0, 2);
+    if (d.length >= 3) out += '.' + d.slice(2, 5);
+    if (d.length >= 6) out += '.' + d.slice(5, 8);
+    if (d.length >= 9) out += '/' + d.slice(8, 12);
+    if (d.length >= 13) out += '-' + d.slice(12, 14);
+    return out;
+}
+function isValidCNPJ(value) {
+    const c = digits(value);
+    if (c.length !== 14) return false;
+    if (allSame(c)) return false;
+    const w1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    let s = 0; for (let i = 0; i < 12; i++) s += +c[i] * w1[i];
+    let r = s % 11, dv1 = r < 2 ? 0 : 11 - r;
+    if (dv1 !== +c[12]) return false;
+    const w2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    s = 0; for (let i = 0; i < 13; i++) s += +c[i] * w2[i];
+    r = s % 11; const dv2 = r < 2 ? 0 : 11 - r;
+    return dv2 === +c[13];
+}
+
+/* Telefone BR mask + validation ------------------------------------------- */
+function maskPhone(value) {
+    const d = digits(value).slice(0, 11); // 10 (fixo) ou 11 (cel)
+    const len = d.length;
+    if (len === 0) return '';
+    if (len <= 2) return `(${d}`;
+    if (len <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+    if (len <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+    return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`; // 11 dígitos
+}
+function isValidPhone(value) {
+    const d = digits(value);
+    if (!(d.length === 10 || d.length === 11)) return false;
+    if (allSame(d)) return false;
+    const ddd = d.slice(0, 2);
+    if (!/^[1-9]\d$/.test(ddd) || ddd === '00') return false;
+    const n1 = d[2];
+    if (d.length === 11) return n1 === '9';   // celular
+    return /[2-8]/.test(n1);                  // fixo
+}
+
+/* Helpers de UI ----------------------------------------------------------- */
+const $ = (sel, ctx = document) => ctx.querySelector(sel);
+const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
+const show = (el) => { if (el) el.hidden = false; };
+const hide = (el) => { if (el) el.hidden = true; };
+const setInvalid = (input, errEl, on = true) => {
+    if (!input) return;
+    input.classList.toggle('is-invalid', !!on);
+    input.setAttribute('aria-invalid', on ? 'true' : 'false');
+    if (errEl) errEl.hidden = !on;
+};
+function clearInputs(container) {
+    if (!container) return;
+    $$('input, textarea, select', container).forEach(el => {
+        if (el.type === 'checkbox' || el.type === 'radio') el.checked = false;
+        else el.value = '';
+    });
+}
+const val = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+const checkedVal = (name, ctx = document) => {
+    const el = ctx.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.value : null;
+};
+const checkedVals = (name, ctx = document) => {
+    return Array.from(ctx.querySelectorAll(`input[name="${name}"]:checked`)).map(i => i.value);
+};
+
+/* ===== Theme switch (cookies) ===== */
+(function setupThemeSwitch() {
+    const root = document.documentElement;
+    const input = document.getElementById('themeToggle');
+
+    const getCookie = (name) => {
+        const row = document.cookie.split('; ').find(r => r.startsWith(name + '='));
+        return row ? decodeURIComponent(row.split('=')[1]) : null;
+    };
+    const setCookie = (name, value, days = 365) => {
+        const d = new Date(); d.setTime(d.getTime() + days * 864e5);
+        document.cookie = `${name}=${encodeURIComponent(value)}; expires=${d.toUTCString()}; path=/; SameSite=Lax`;
+    };
+
+    const current = root.dataset.theme || getCookie('theme') || 'light';
+    applyTheme(current);
+    if (input) input.checked = (current === 'dark');
+
+    input?.addEventListener('change', () => {
+        const next = input.checked ? 'dark' : 'light';
+        applyTheme(next);
+        setCookie('theme', next);
+    });
+
+    function applyTheme(theme) {
+        root.dataset.theme = theme;
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) {
+            const bg = getComputedStyle(document.body).backgroundColor || (theme === 'dark' ? '#071319' : '#f4fbfd');
+            meta.setAttribute('content', bg);
+        }
+    }
+})();
+
+/* ===== Wizard / Steps ===== */
+document.addEventListener('DOMContentLoaded', () => {
+    const form = $('#wizardForm');
+    const steps = $$('.step', form);
+    const progressBar = $('#progressBar');
+
+    const btnNext1 = $('#next1');
+    const btnNext2 = $('#next2');
+    const btnNext3 = $('#next3');
+    const btnNext4 = $('#next4');
+    const btnNext5 = $('#next5');
+    const btnEnviar = $('#enviar');
+
+    const cnpjInput = $('#cnpj');
+    const cnpjError = $('#cnpjError');
+    const telInput = $('#telefone');
+    const telError = $('#telError');
+
+    const marcasGroup = $('#marcasGroup');
+    const marcasInput = $('#marcas');
+    const volumeGroup = $('#volumeGroup');
+
+    const tipoRadios = $$('input[name="tipo_parceria"]');
+    const segmentoRadios = $$('input[name="segmento_atual"]');
+
+    const cfStep = document.getElementById('cfStep');
+    const cfNome = document.getElementById('cf_nome');
+    const cfEmail = document.getElementById('cf_email');
+    const cfTel = document.getElementById('cf_telefone');
+    const cfOptin = document.getElementById('cf_optin');
+    const cfEnviar = document.getElementById('cfEnviar');
+    const cfNomeError = document.getElementById('cfNomeError');
+    const cfEmailError = document.getElementById('cfEmailError');
+    const cfTelError = document.getElementById('cfTelError');
+
+    telInput.setAttribute('aria-describedby', 'telError');
+
+    /* Progress */
+    const visibleCount = () => steps.filter(s => s.classList.contains('is-visible')).length;
+    const updateProgress = () => {
+        const tipo = checkedVal('tipo_parceria');
+        const vis = steps.filter(s => s.classList.contains('is-visible')).length;
+
+        // total por fluxo: CF = 2 (Step 1 + CF); B2B = 6 (Steps 1..6, ignorando cfStep)
+        const total = (tipo === 'Consumidor Final') ? 2 : 6;
+
+        const pct = Math.max(5, Math.round((vis / total) * 100));
+        progressBar.style.width = `${pct}%`;
+    };
+    function nextStepFrom(fromEl) {
+        const tipo = checkedVal('tipo_parceria');
+        let i = steps.indexOf(fromEl);
+        while (++i < steps.length) {
+            const cand = steps[i];
+            if (tipo === 'Consumidor Final') {
+                if (cand === cfStep) return cand;   // no CF, o próximo é o cfStep
+                continue;                            // pula steps B2B
+            } else {
+                if (cand === cfStep) continue;       // no B2B, pula cfStep
+                return cand;                         // pega o próximo B2B
+            }
+        }
+        return null;
+    }
+    const firstFocusable = (el) => el && el.querySelector(
+        'input:not([type="hidden"]):not([disabled]), ' +
+        'textarea:not([disabled]), select:not([disabled]), ' +
+        'button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    const focusWhenVisible = (stepEl, delay = 220) => {
+        setTimeout(() => { const f = firstFocusable(stepEl); if (f) f.focus(); }, delay);
+    };
+    // rola a página até o início do próximo step (com respeito a prefers-reduced-motion)
+    function scrollToStep(stepEl, delay = 50) {
+        if (!stepEl) return;
+        const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+        const doScroll = () => stepEl.scrollIntoView({ behavior, block: 'start' });
+        return delay ? setTimeout(doScroll, delay) : doScroll();
+    }
+    function goNext(fromEl) {
+        const nx = nextStepFrom(fromEl);
+        if (nx) revealStep(nx);
+    }
+
+    /* === VALIDADORES DE STEP === */
+    function validateStep4() {
+        const segOK = !!$$('input[name="segmento_atual"]:checked', form).length;
+        const marcasOK = (marcasGroup && !marcasGroup.hidden) ? (marcasInput.value.trim().length >= 2) : true;
+        btnNext4.disabled = !(segOK && marcasOK);
+    }
+    function validateStep5() {
+        const linhasOK = $('#linhas').value.trim().length >= 2;
+        const volOK = (volumeGroup && !volumeGroup.hidden) ? !!$$('input[name="volume_inicial"]:checked', form).length : true;
+        btnNext5.disabled = !(linhasOK && volOK);
+    }
+    function updateSubmitEnabled() {
+        const emailOK = isValidEmail($('#email')?.value || '');
+        const ok =
+            checkedVal('tipo_parceria') &&
+            isValidCNPJ(cnpjInput.value) &&
+            isValidPhone(telInput.value) &&
+            emailOK &&
+            ($('#linhas').value.trim().length >= 2) &&
+            ((volumeGroup && volumeGroup.hidden) || !!$$('input[name="volume_inicial"]:checked', form).length) &&
+            !!$$('input[name="segmento_atual"]:checked', form).length &&
+            ((marcasGroup && marcasGroup.hidden) || $('#marcas').value.trim().length >= 2);
+
+        btnEnviar.disabled = !ok;
+    }
+    function isValidEmail(v) {
+        const s = (v || '').trim();
+        if (s === '') return true; // e-mail é opcional; se quiser tornar obrigatório, mude para: return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s);
+        return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s);
+    }
+    function isValidEmailRequired(v) {
+        const s = (v || '').trim();
+        return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s); // aqui é obrigatório
+    }
+    function revealStep(el) {
+        if (!el) return;
+        el.hidden = false; // <- ESSENCIAL: remove o display:none do atributo hidden
+        if (!el.classList.contains('is-visible')) {
+            el.classList.add('is-visible', 'anim-in');
+            setTimeout(() => el.classList.remove('anim-in'), 200);
+        }
+        updateProgress();
+        scrollToStep(el, 80);
+        focusWhenVisible(el, 220);
+    }
+    function hideStep(el) {
+        if (!el) return;
+        el.classList.remove('is-visible');
+        updateProgress();
+    }
+
+    function validateCF() {
+        // máscara e validação do telefone CF
+        if (cfTel) cfTel.value = maskPhone(cfTel.value);
+
+        const nomeOK = (cfNome?.value.trim().length >= 2);
+        const emailOK = isValidEmailRequired(cfEmail?.value);
+        const telOK = isValidPhone(cfTel?.value);
+
+        setInvalid(cfNome, cfNomeError, !nomeOK);
+        setInvalid(cfEmail, cfEmailError, !emailOK);
+        const telDigits = digits(cfTel?.value).length;
+        setInvalid(cfTel, cfTelError, (telDigits >= 10 && !telOK));
+
+        cfEnviar.disabled = !(nomeOK && emailOK && telOK);
+    }
+
+    function validateStep3() {
+        const emailEl = $('#email');
+        const emailErr = $('#emailError');
+        const telOK = isValidPhone(telInput.value);
+        const emailOK = isValidEmail(emailEl?.value);
+
+        // Mostra erro do telefone assim que atingir 10/11 dígitos e for inválido
+        const telDigits = digits(telInput.value).length;
+        setInvalid(telInput, telError, (telDigits >= 10 && !telOK));
+
+        // Mostra erro do e-mail apenas se tiver algo digitado e for inválido
+        if (emailEl) setInvalid(emailEl, emailErr, (emailEl.value.trim() !== '' && !emailOK));
+
+        // Para avançar no passo 3, telefone válido é obrigatório; e-mail, se preenchido, deve ser válido
+        btnNext3.disabled = !(telOK && emailOK);
+    }
+
+    /* === SYNCs (mostra/esconde/zera) === */
+    function syncTipoParceriaUI() {
+        const tipo = checkedVal('tipo_parceria');
+
+        btnNext1.textContent = tipo === 'Consumidor Final' ? 'Continuar' : 'Próximo';
+        btnNext1.disabled = !tipo;
+
+        // Volume só para Lojista
+        if (tipo === 'Lojista') show(volumeGroup); else { clearInputs(volumeGroup); hide(volumeGroup); }
+
+        if (tipo === 'Consumidor Final') {
+            revealStep(cfStep);
+            // esconde steps B2B por data-step (2..6)
+            ['2', '3', '4', '5', '6'].forEach(n => hideStep(form.querySelector(`.step[data-step="${n}"]`)));
+            validateCF();
+        } else {
+            hideStep(cfStep);
+        }
+
+        validateStep5();
+        updateSubmitEnabled();
+    }
+    function syncSegmentoUI() {
+        const val = checkedVal('segmento_atual');
+        const sim = val === 'Sim';
+        if (sim) {
+            show(marcasGroup);
+            if (marcasInput) marcasInput.required = true;
+        } else {
+            if (marcasInput) marcasInput.required = false;
+            clearInputs(marcasGroup);
+            hide(marcasGroup);
+        }
+        validateStep4();
+        updateSubmitEnabled();
+    }
+
+    /* === LISTENERS === */
+    tipoRadios.forEach(r => r.addEventListener('change', syncTipoParceriaUI));
+    segmentoRadios.forEach(r => r.addEventListener('change', syncSegmentoUI));
+
+    form.addEventListener('change', (e) => {
+        if (e.target.name === 'tipo_parceria') syncTipoParceriaUI();
+        if (e.target.name === 'segmento_atual') syncSegmentoUI();
+        if (e.target.name === 'volume_inicial') validateStep5();
+    });
+
+    // Enter navega + foco no próximo (exceto textarea)
+    form.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' || e.target.tagName === 'TEXTAREA') return;
+
+        const tipo = checkedVal('tipo_parceria');
+
+        // Fluxo Consumidor Final
+        if (tipo === 'Consumidor Final') {
+            e.preventDefault();
+            // se ainda está no step 1, o Enter abre o step CF
+            if (!cfStep.classList.contains('is-visible')) { btnNext1.click(); return; }
+            // se já está no step CF, o Enter envia (se válido)
+            if (!cfEnviar.disabled) form.requestSubmit();
+            return;
+        }
+
+        // Fluxo B2B: pega o step visível atual e caminha a partir dele
+        e.preventDefault();
+        const visibleSteps = steps.filter(s => s.classList.contains('is-visible'));
+        const curStep = visibleSteps[visibleSteps.length - 1];
+
+        const btnByStep = {
+            '1': btnNext1, '2': btnNext2, '3': btnNext3,
+            '4': btnNext4, '5': btnNext5, '6': btnEnviar
+        };
+        const btn = btnByStep[curStep?.dataset.step] || btnEnviar;
+
+        if (!btn || btn.disabled) return;
+        if (btn === btnEnviar) form.requestSubmit();
+        else goNext(curStep);
+    });
+
+    /* === NEXT BUTTONS (também focam) === */
+    btnNext1.addEventListener('click', () => {
+        const tipo = checkedVal('tipo_parceria');
+        if (!tipo) return;
+        if (tipo === 'Consumidor Final') { revealStep(cfStep); return; }
+        goNext(form.querySelector('.step[data-step="1"]'));
+    });
+
+    cnpjInput.addEventListener('input', () => {
+        cnpjInput.value = maskCNPJ(cnpjInput.value);
+        setInvalid(cnpjInput, cnpjError, false);
+        const ok = isValidCNPJ(cnpjInput.value);
+        if (digits(cnpjInput.value).length === 14) setInvalid(cnpjInput, cnpjError, !ok);
+        btnNext2.disabled = !ok;
+        updateSubmitEnabled();
+    });
+    btnNext2.addEventListener('click', () => {
+        if (!isValidCNPJ(cnpjInput.value)) { setInvalid(cnpjInput, cnpjError, true); return; }
+        goNext(form.querySelector('.step[data-step="2"]'));
+    });
+
+    // TELEFONE
+    telInput.addEventListener('input', () => {
+        telInput.value = maskPhone(telInput.value);
+        validateStep3();
+    });
+    btnNext3.addEventListener('click', () => {
+        validateStep3();
+        if (btnNext3.disabled) return;
+        goNext(form.querySelector('.step[data-step="3"]'));
+    });
+
+    // E-MAIL
+    const emailInput = $('#email');
+    emailInput?.setAttribute('aria-describedby', 'emailError');
+    emailInput?.addEventListener('input', validateStep3);
+    emailInput?.addEventListener('blur', validateStep3);
+
+    cfNome?.addEventListener('input', validateCF);
+    cfEmail?.addEventListener('input', validateCF);
+    cfEmail?.addEventListener('blur', validateCF);
+    cfTel?.addEventListener('input', validateCF);
+
+    form.addEventListener('input', (e) => {
+        if (e.target.id === 'marcas' || e.target.name === 'segmento_atual') validateStep4();
+        if (e.target.id === 'linhas' || e.target.name === 'volume_inicial') validateStep5();
+        updateSubmitEnabled();
+    });
+
+    btnNext4.addEventListener('click', () => {
+        validateStep4();
+        if (!btnNext4.disabled) goNext(form.querySelector('.step[data-step="4"]'));
+    });
+    btnNext5.addEventListener('click', () => {
+        validateStep5();
+        if (!btnNext5.disabled) goNext(form.querySelector('.step[data-step="5"]'));
+    });
+
+    /* === SUBMIT === */
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const endpoint = 'https://webhook.jaupesca.com.br/webhook/captura-de-lead-b2b-form-webhook';
+        const tipo = checkedVal('tipo_parceria');
+
+        // === BRANCH: Consumidor final (B2C) ===
+        if (tipo === 'Consumidor Final') {
+            validateCF();
+            if (cfEnviar.disabled) return;
+
+            const emailRaw = cfEmail.value.trim();
+            const payload = {
+                // metadados p/ facilitar o IF no n8n
+                lead_tipo: 'b2c',                    // <<< DIFERENCIA B2C/B2B
+                consumidor_final: true,              // flag booleana explícita
+                form_version: 'cf-v1',
+
+                // campos CF
+                nome: cfNome.value.trim(),
+                email: emailRaw.toLowerCase(),
+                telefone: digits(cfTel.value),
+                optin_promocoes: !!cfOptin.checked,
+
+                // ainda envio o campo original para manter compatibilidade
+                tipo_parceria: 'Consumidor Final',
+            };
+
+            await sendToWebhook(endpoint, payload);
+            return;
+        }
+
+        // === BRANCH: Parcerias (B2B) — seu fluxo atual ===
+        validateStep3();
+        const emailOK = isValidEmail($('#email')?.value || '');
+        if (!isValidCNPJ($('#cnpj').value) || !isValidPhone($('#telefone').value) || !emailOK) return;
+
+        const emailRaw = val('email');
+        const data = {
+            lead_tipo: 'b2b',                      // <<< DIFERENCIA B2C/B2B
+            consumidor_final: false,
+            form_version: 'b2b-v1',
+
+            /* Step 1 */
+            tipo_parceria: checkedVal('tipo_parceria'),
+
+            /* Step 2 */
+            empresa: val('empresa') || null,
+            razao_social: val('razao') || null,
+            cidade_uf: val('cidade') || null,
+            cnpj: digits(val('cnpj')),
+
+            /* Step 3 */
+            responsavel_nome: val('resp_nome') || null,
+            responsavel_cargo: val('resp_cargo') || null,
+            email_comercial: emailRaw ? emailRaw.toLowerCase() : null,
+            telefone: digits(val('telefone')),
+
+            /* Step 4 */
+            segmento_atual: checkedVal('segmento_atual'),
+            marcas: val('marcas') || null,
+            atuacao: checkedVals('atuacao[]', form),
+            tempo_mercado: checkedVal('tempo_mercado', form),
+            equipe_comercial: checkedVal('equipe_comercial', form),
+            onde_vende: checkedVals('onde_vende[]', form),
+            publico_principal: val('publico') || null,
+            media_pedidos: checkedVal('media_pedidos', form),
+
+            /* Step 5 */
+            como_conheceu: checkedVal('como_conheceu', form),
+            linhas_interesse: val('linhas'),
+            volume_inicial: (volumeGroup && !volumeGroup.hidden)
+                ? (checkedVal('volume_inicial', form) || null)
+                : null,
+
+            /* Step 6 */
+            autorizo_contato: $('#autorizo') ? $('#autorizo').checked : true,
+            observacoes: val('obs') || null,
+        };
+
+        await sendToWebhook(endpoint, data);
+    });
+
+    async function sendToWebhook(endpoint, payload) {
+        const msg = $('#msg');
+        const submitBtn = document.activeElement?.id === 'cfEnviar' ? cfEnviar : btnEnviar;
+
+        console.clear();
+        console.log('Dados enviados:', payload);
+
+        msg.hidden = true;
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            var prevLabel = submitBtn.textContent;
+            submitBtn.textContent = 'Enviando...';
+        }
+
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), 12000);
+
+        try {
+            const resp = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify(payload),
+                mode: 'cors',
+                signal: ctrl.signal
+            });
+            clearTimeout(t);
+
+            if (!resp.ok) {
+                const text = await resp.text().catch(() => '');
+                throw new Error(`HTTP ${resp.status} ${resp.statusText} ${text ? '- ' + text : ''}`);
+            }
+
+            await resp.json().catch(() => ({}));
+            window.location.replace('/form/formulario-enviado');
+        } catch (err) {
+            console.error('Falha no envio:', err);
+            if (msg) {
+                msg.textContent = 'Falha ao enviar. Verifique sua conexão ou permissões de CORS e tente novamente.';
+                msg.hidden = false;
+            }
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = prevLabel || 'Enviar';
+            }
+        }
+    }
+
+    /* === ESTADO INICIAL === */
+    hide(marcasGroup); if (marcasInput) marcasInput.required = false;
+    hide(volumeGroup); clearInputs(volumeGroup);
+
+    // Sincroniza e foca o primeiro campo do primeiro step
+    syncTipoParceriaUI();
+    syncSegmentoUI();
+    const first = firstFocusable(steps[0]); if (first) first.focus();
+
+    updateSubmitEnabled();
+    updateProgress();
+    validateStep3();
+    hide(cfStep);
+});

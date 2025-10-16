@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cadastro — Parcerias Jaú Pesca</title>
+
+    <!-- Cor do navegador (tema claro como padrão; o JS atualiza se necessário) -->
+    <meta name="theme-color" content="#f4fbfd">
+
+    <!-- Segurança básica (ajuste domínios se mudar o webhook, CDN, etc.) -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self';
+                 img-src 'self' data:;
+                 connect-src 'self' https://webhook.jaupesca.com.br;
+                 script-src 'self';
+                 style-src 'self';
+                 base-uri 'self';
+                 form-action 'self' https://webhook.jaupesca.com.br;
+                 frame-ancestors 'none';
+                 upgrade-insecure-requests">
+
+    <!-- Política de permissões conservadora -->
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), fullscreen=(self)">
+
+    <!-- Não enviar referrer -->
+    <meta name="referrer" content="no-referrer">
+
+    <!-- CSS -->
+    <link rel="preload" href="/static/form/form.css" as="style">
+    <link rel="stylesheet" href="/static/form/form.css">
+</head>
+
+<body>
+    <!-- O JS vai montar todo o formulário aqui dentro -->
+    <main class="wizard"></main>
+
+    <noscript>
+        <p style="padding:1rem;max-width:720px;margin:1rem auto;background:#fee;border:1px solid #f66">
+            Este formulário depende de JavaScript. Por favor, ative o JavaScript para continuar.
+        </p>
+    </noscript>
+
+    <!-- Seu JS que constrói o HTML dinamicamente e envia ao webhook -->
+    <script src="/static/form/form.js" defer></script>
+</body>
+
+</html>

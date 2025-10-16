@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Formulário enviado — Jaú Pesca</title>
+    <meta name="theme-color" content="#f4fbfd">
+
+    <!-- Tema via cookie (padrão: claro) — evita flicker antes do CSS -->
+    <script>
+        (function () {
+            function getCookie(name) { const r = document.cookie.split('; ').find(x => x.startsWith(name + '=')); return r ? decodeURIComponent(r.split('=')[1]) : null; }
+            function setCookie(n, v, d) { const t = new Date; t.setTime(t.getTime() + d * 864e5); document.cookie = n + '=' + encodeURIComponent(v) + '; expires=' + t.toUTCString() + '; path=/; SameSite=Lax'; }
+            var theme = getCookie('theme') || 'light';
+            if (!getCookie('theme')) setCookie('theme', theme, 365);
+            document.documentElement.dataset.theme = theme;
+        })();
+    </script>
+
+    <!-- Usa o mesmo CSS do formulário -->
+    <link rel="stylesheet" href="/static/form/form.css" />
+</head>
+
+<body>
+    <main class="wizard">
+        <header class="wizard__header">
+            <h1>Obrigado! Seu formulário foi enviado 🎣</h1>
+
+            <!-- SWITCH DE TEMA (topo direito) -->
+            <div class="theme-switch">
+                <input type="checkbox" id="themeToggle" aria-label="Alternar tema claro/escuro" />
+                <label for="themeToggle">
+                    <span class="icon sun" aria-hidden="true">🌙</span>
+                    <span class="icon moon" aria-hidden="true">🌞</span>
+                    <span class="knob" aria-hidden="true"></span>
+                </label>
+            </div>
+
+            <p class="sub">Recebemos seus dados com sucesso. Nossa equipe entrará em contato em breve.</p>
+            <div class="progress">
+                <div class="progress__bar" style="width:100%"></div>
+            </div>
+        </header>
+
+        <!-- Bloco principal -->
+        <section class="step is-visible" aria-live="polite">
+            <div class="field">
+                <p class="info">Se preferir, você já pode <strong>fechar esta aba</strong> ou explorar outras opções:
+                </p>
+            </div>
+
+            <!-- CTAs principais -->
+            <div class="actions" style="flex-wrap:wrap">
+                <!-- Troque os href="#" pelas suas URLs -->
+                <a class="btn" href="https://www.jaupesca.com.br/" target="_self" rel="noopener">🛍️ Visitar o site</a>
+                <a class="btn"
+                    href="https://wa.me/5514996309652?text=Ol%C3%A1!%20Cheguei%20pelo%20formul%C3%A1rio%20de%20Parcerias%20da%20Ja%C3%BA%20Pesca%20e%20gostaria%20de%20falar%20com%20a%20equipe%20comercial."
+                    target="_blank" rel="noopener">💬 Falar no WhatsApp</a>
+                <a class="btn" href="https://wa.me/channel/0029VbBZhWVJ93wPgzJEuG2o/" target="_blank" rel="noopener">📣
+                    Canal do WhatsApp</a>
+                <!-- POP de redes sociais: hover abre no desktop, clique/tap alterna no mobile -->
+                <div class="social-pop">
+                    <!-- checkbox oculto controla o estado “aberto” -->
+                    <input type="checkbox" id="socialToggle" class="social-toggle" aria-hidden="true">
+
+                    <!-- o label vira o botão (mantém visual .btn) -->
+                    <label for="socialToggle" class="btn social-trigger" role="button" tabindex="0" aria-haspopup="true"
+                        aria-expanded="false">
+                        📱 Redes sociais
+                    </label>
+
+                    <div class="bubble" role="menu" aria-label="Nossas redes">
+                        <a class="item" href="https://www.youtube.com/@jaupesca_oficial" target="_blank"
+                            role="menuitem">YouTube</a>
+                        <a class="item" href="https://www.instagram.com/jaupesca/" target="_blank"
+                            role="menuitem">Instagram</a>
+                        <a class="item" href="https://www.tiktok.com/@jaupesca" target="_blank"
+                            role="menuitem">TikTok</a>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <!-- Informações úteis -->
+            <div class="field-group" role="note" aria-label="Informações complementares">
+                <span class="label">O que acontece agora?</span>
+                <ul style="margin:0 0 0 18px; padding:0; line-height:1.6">
+                    <li>Seu cadastro foi recebido pela equipe Jaú Pesca.</li>
+                    <li>Em breve, entraremos em contato no WhatsApp/E-mail informado.</li>
+                    <li>Enquanto isso, fique à vontade para conhecer mais produtos e novidades.</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <!-- Script do switch (cookies) + botão fechar aba -->
+    <script>
+        (function setupThemeSwitch() {
+            const root = document.documentElement;
+            const input = document.getElementById('themeToggle');
+
+            function getCookie(name) { const r = document.cookie.split('; ').find(x => x.startsWith(name + '=')); return r ? decodeURIComponent(r.split('=')[1]) : null; }
+            function setCookie(n, v, d = 365) { const t = new Date; t.setTime(t.getTime() + d * 864e5); document.cookie = `${n}=${encodeURIComponent(v)}; expires=${t.toUTCString()}; path=/; SameSite=Lax`; }
+
+            const current = root.dataset.theme || getCookie('theme') || 'light';
+            applyTheme(current);
+            if (input) input.checked = (current === 'dark');
+
+            input?.addEventListener('change', () => {
+                const next = input.checked ? 'dark' : 'light';
+                applyTheme(next);
+                setCookie('theme', next);
+            });
+
+            function applyTheme(theme) {
+                root.dataset.theme = theme;
+                const meta = document.querySelector('meta[name="theme-color"]');
+                if (meta) {
+                    const bg = getComputedStyle(document.body).backgroundColor || (theme === 'dark' ? '#071319' : '#f4fbfd');
+                    meta.setAttribute('content', bg);
+                }
+            }
+        })();
+
+        // Botão "Fechar aba" (só fecha se a aba foi aberta via script)
+        document.getElementById('closeTab')?.addEventListener('click', () => {
+            window.close();
+            // fallback: se não fechar (navegador bloqueia), apenas informa
+            setTimeout(() => alert('Você pode fechar esta aba com Ctrl/Cmd + W.'), 150);
+        });
+    </script>
+</body>
+
+</html>

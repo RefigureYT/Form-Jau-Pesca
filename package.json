@@ -1,0 +1,31 @@
+{
+  "name": "form-jau-pesca",
+  "version": "1.0.0",
+  "description": "Formulários feitos para a Jaú Pesca",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RefigureYT/Form-Jau-Pesca.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RefigureYT/Form-Jau-Pesca/issues"
+  },
+  "homepage": "https://github.com/RefigureYT/Form-Jau-Pesca#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "morgan": "^1.10.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

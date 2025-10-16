@@ -1,0 +1,7 @@
+{
+    "watch": ["src", "public", "views", ".env", ".env.*"],
+    "ext": "js,mjs,cjs,json,html,css,scss,md,yaml,yml",
+    "ignore": ["node_modules", "dist", "tmp", "*.map"],
+    "exec": "node --enable-source-maps ./server.js",
+    "delay": "200ms"
+}

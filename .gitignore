@@ -137,3 +137,11 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+
+
+# Arquivos EXTRAS
+/formulario-exemplo.html
+
+# Backups locais
+/src/static/form/*.bkp
