@@ -13,14 +13,15 @@
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
         img-src 'self' data: https:;
-        connect-src 'self' https://webhook.jaupesca.com.br;
-        script-src 'self';
+        connect-src 'self' https://webhook.jaupesca.com.br https://www.facebook.com https://graph.facebook.com;
+        script-src 'self' https://connect.facebook.net;
         style-src 'self';
         base-uri 'self';
         form-action 'self' https://webhook.jaupesca.com.br;
         frame-ancestors 'none';
-        upgrade-insecure-requests">
-
+        upgrade-insecure-requests;
+        ">
+        <!-- upgrade-insecure-requests  <-- Isso deve ficar fora do meta caso esteja testando localmente -->
 
     <!-- Política de permissões conservadora -->
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), fullscreen=(self)">
@@ -50,6 +51,10 @@
 <body>
     <!-- O JS vai montar todo o formulário aqui dentro -->
     <main class="wizard"></main>
+    <noscript>
+        <img height="1" width="1" style="display:none"
+            src="https://www.facebook.com/tr?id=870629720028593&ev=PageView&noscript=1" alt="">
+    </noscript>
 
     <noscript>
         <p style="padding:1rem;max-width:720px;margin:1rem auto;background:#fee;border:1px solid #f66">
@@ -59,6 +64,7 @@
 
     <!-- Seu JS que constrói o HTML dinamicamente e envia ao webhook -->
     <script src="/static/form-1/form.js" defer></script>
+    <script src="/static/form-1/meta-pixel.js" defer></script>
 </body>
 
 </html>
